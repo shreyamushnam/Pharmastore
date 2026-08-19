@@ -62,16 +62,16 @@ export default function AdminSettingsPage() {
       {/* Title */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-          <Settings className="h-6 w-6 text-teal-650" />
+          <Settings className="h-6 w-6 text-teal-600" />
           Global Configurations
         </h1>
-        <p className="text-sm text-slate-550">
+        <p className="text-sm text-slate-500">
           Manage pharmacy metadata, default taxation rates, billing parameters, and store information
         </p>
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-250 bg-emerald-50 p-4 text-sm text-emerald-700">
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
           <CheckCircle className="h-5 w-5 shrink-0" />
           <span>Pharmacy configurations updated successfully!</span>
         </div>
@@ -82,7 +82,7 @@ export default function AdminSettingsPage() {
         {/* Card 1: Store info */}
         <div className="rx-card p-6 space-y-4">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-3">
-            <Store className="h-4 w-4 text-teal-650" />
+            <Store className="h-4 w-4 text-teal-600" />
             Store Metadata
           </h2>
 
@@ -94,7 +94,7 @@ export default function AdminSettingsPage() {
                 required
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
               />
             </div>
             <div>
@@ -103,7 +103,7 @@ export default function AdminSettingsPage() {
                 type="text"
                 value={storePhone}
                 onChange={(e) => setStorePhone(e.target.value)}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
               />
             </div>
             <div>
@@ -112,7 +112,7 @@ export default function AdminSettingsPage() {
                 type="email"
                 value={storeEmail}
                 onChange={(e) => setStoreEmail(e.target.value)}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
               />
             </div>
             <div>
@@ -121,7 +121,7 @@ export default function AdminSettingsPage() {
                 type="text"
                 value={storeAddress}
                 onChange={(e) => setStoreAddress(e.target.value)}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
               />
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function AdminSettingsPage() {
         {/* Card 2: Billing defaults */}
         <div className="rx-card p-6 space-y-4">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-3">
-            <FileText className="h-4 w-4 text-teal-650" />
+            <FileText className="h-4 w-4 text-teal-600" />
             Billing & Ingestion Defaults
           </h2>
 
@@ -142,7 +142,7 @@ export default function AdminSettingsPage() {
                 placeholder="GSTIN Number"
                 value={gstin}
                 onChange={(e) => setGstin(e.target.value)}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
               />
             </div>
             <div>
@@ -153,7 +153,7 @@ export default function AdminSettingsPage() {
                 max={100}
                 value={defaultTax}
                 onChange={(e) => setDefaultTax(Number(e.target.value))}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 outline-none focus:border-teal-500 transition"
               />
             </div>
             <div>
@@ -163,7 +163,7 @@ export default function AdminSettingsPage() {
                 min={1}
                 value={defaultReorder}
                 onChange={(e) => setDefaultReorder(Number(e.target.value))}
-                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-850 outline-none focus:border-teal-500 transition"
+                className="mt-2 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 outline-none focus:border-teal-500 transition"
               />
             </div>
           </div>

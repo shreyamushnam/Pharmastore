@@ -68,3 +68,23 @@ A professional, modern, and elegant light-themed interface designed specifically
 ## 5. Visual Assets (Generated via Nano Banana)
 1. **`clean_rx_banner.jpg`**: A clean, abstract background featuring teal and green curves with subtle pharmacy-related icons or geometric shapes, used in page header banners and the login page.
 2. **`clean_rx_logo.png`**: (CSS-based SVG/canvas icon) - An elegant medicine/cross logo.
+
+---
+
+## 6. Security & Multi-Branch Scoping Design Decisions
+
+### Audit Logs (Branch-Agnostic)
+Audit logs in `public.audit_logs` track system-wide events (such as user modifications, role adjustments, and branch-level parameters). 
+- **Scoping**: Restricting logs by branch is deliberately avoided because audits must provide a single, complete, immutable trail of historical modifications across the entire corporation.
+- **Gating**: Only global administrator roles (`super_admin` and `admin`) have read access to the audit logs ledger. Standard employees and managers are blocked from seeing any log lines to protect confidentiality.
+
+### Notifications (Branch-Agnostic)
+Notifications currently serve as critical system-wide announcements or near-expiry and stock-out alerts.
+- **Scoping**: Active notifications are currently global and accessible to all active staff.
+- **Future Partitioning**: If future branch-specific notifications are desired, a `branch_id` column can be safely introduced. However, standard system warnings and notices remain branch-agnostic to support operational awareness.
+
+### Manager UI Strategy
+Managers share the employee dashboard interface for billing, stock queries, and batch adjustments. However:
+- All actions executed by a manager (such as billing or adjustments) are scoped to their assigned `branch_id` on the server side.
+- Managers manage staff through the `/admin/employees` panel, but the system restricts their visibility and operations to users within their own branch.
+

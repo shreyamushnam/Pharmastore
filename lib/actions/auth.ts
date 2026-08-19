@@ -44,7 +44,7 @@ export async function login(prevState: any, formData: FormData) {
   }
 
   // Redirect based on role
-  if (profile.role === 'admin') {
+  if (profile.role === 'super_admin' || profile.role === 'admin') {
     redirect('/admin/dashboard');
   } else {
     redirect('/employee/dashboard');
@@ -59,6 +59,19 @@ export async function logout() {
 
 export async function getCurrentUser() {
   try {
+    const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder-project') && process.env.NODE_ENV !== 'production';
+    if (isPlaceholder) {
+      return {
+        id: 'mock-admin-id',
+        full_name: 'Administrator',
+        email: 'admin@pharmastore.com',
+        role: 'admin',
+        is_active: true,
+        branch_id: null,
+        created_at: new Date().toISOString()
+      };
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -70,6 +83,10 @@ export async function getCurrentUser() {
       .select('*')
       .eq('id', user.id)
       .single();
+
+    if (profile && !profile.is_active) {
+      return null;
+    }
 
     return profile;
   } catch (error) {

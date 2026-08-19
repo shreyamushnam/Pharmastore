@@ -196,7 +196,7 @@ export default function AdminDashboard({
           <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between bg-slate-50/50">
             <div>
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="h-4 w-4 text-teal-650" />
+                <Activity className="h-4 w-4 text-teal-600" />
                 Employee Adjustments Queue
               </h2>
               <p className="text-xs text-slate-500">Awaiting supervisor approval before physical stock deduction</p>

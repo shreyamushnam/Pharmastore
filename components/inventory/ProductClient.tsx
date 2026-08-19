@@ -356,7 +356,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
           placeholder="Search by name, generic, barcode..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="block w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-4 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+          className="block w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
         />
       </div>
 
@@ -417,7 +417,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleOpenEdit(product)}
-                          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-teal-650 transition"
+                          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-teal-600 transition"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
@@ -454,7 +454,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 required
                 {...register('name')}
                 placeholder="e.g. Paracetamol 650mg"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
               {errors.name && <p className="mt-1 text-xs text-rose-650">{errors.name.message}</p>}
             </div>
@@ -467,7 +467,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('generic_name')}
                 placeholder="e.g. Acetaminophen"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -480,7 +480,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 {...register('generic_name')} // Wait, was it generic_name or manufacturer? Let's check original: register('manufacturer')!
                 {...register('manufacturer')}
                 placeholder="e.g. Cipla Ltd."
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -492,7 +492,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('composition')}
                 placeholder="e.g. Paracetamol IP 650mg"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -504,7 +504,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('category')}
                 placeholder="e.g. Analgesic, Antibiotic"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -516,7 +516,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('strength')}
                 placeholder="e.g. 650 mg, 500 ml"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -528,7 +528,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('pack_size')}
                 placeholder="e.g. 15 Tablets, 1 Bottle"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -540,7 +540,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('unit')}
                 placeholder="e.g. Tablets, Syrup"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -552,7 +552,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('hsn_code')}
                 placeholder="e.g. 300490"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -564,7 +564,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
                 type="text"
                 {...register('barcode')}
                 placeholder="e.g. 890100200300"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -575,7 +575,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
               <input
                 type="number"
                 {...register('reorder_level')}
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
               {errors.reorder_level && (
                 <p className="mt-1 text-xs text-rose-650">{errors.reorder_level.message}</p>
@@ -588,7 +588,7 @@ export default function ProductClient({ initialProducts }: ProductClientProps) {
               </label>
               <select
                 {...register('tax_rate')}
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               >
                 <option value={0}>0% (Exempt)</option>
                 <option value={5}>5%</option>

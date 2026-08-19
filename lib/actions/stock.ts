@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/actions/auth';
+import { hasAdminRole } from '@/lib/roles';
 import { stockAdjustmentSchema } from '@/lib/validation';
 import { revalidatePath } from 'next/cache';
 
@@ -57,8 +58,27 @@ export async function adjustStock(prevState: any, data: any) {
 
     const supabase = await createClient();
 
-    // Determine status based on role: admins approve immediately, employees queue for approval.
-    const status = currentUser.role === 'admin' ? 'approved' : 'pending';
+    // Fetch batch to get its branch_id and ensure it belongs to the user's branch if manager/employee
+    const { data: batch, error: batchError } = await supabase
+      .from('batches')
+      .select('branch_id')
+      .eq('id', parsed.data.batch_id)
+      .single();
+
+    if (batchError || !batch) {
+      return { error: 'Batch not found or unauthorized' };
+    }
+
+    const targetBranchId = batch.branch_id;
+    if (currentUser.role === 'manager' || currentUser.role === 'employee') {
+      if (targetBranchId !== currentUser.branch_id) {
+        return { error: 'Unauthorized: You can only adjust stock for batches in your own branch' };
+      }
+    }
+
+    // Determine status based on role: admins/super_admins approve immediately, employees/managers queue for approval.
+    const isApprovedImmediately = hasAdminRole(currentUser);
+    const status = isApprovedImmediately ? 'approved' : 'pending';
 
     const { error } = await supabase.from('stock_movements').insert([
       {
@@ -68,11 +88,12 @@ export async function adjustStock(prevState: any, data: any) {
         status: status,
         reason: parsed.data.reason,
         created_by: currentUser.id,
+        branch_id: targetBranchId,
       },
     ]);
 
     if (error) {
-      return { error: error.message };
+      return { error: 'Failed to adjust stock' };
     }
 
     revalidatePath('/admin/batches');
@@ -80,14 +101,14 @@ export async function adjustStock(prevState: any, data: any) {
     revalidatePath('/employee/dashboard');
     return { success: true, queued: status === 'pending' };
   } catch (error: any) {
-    return { error: error.message || 'An unexpected error occurred' };
+    return { error: 'An unexpected error occurred' };
   }
 }
 
 export async function approveAdjustment(id: string) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || !hasAdminRole(currentUser)) {
       return { error: 'Unauthorized: Admin privileges required' };
     }
 
@@ -98,7 +119,7 @@ export async function approveAdjustment(id: string) {
       .eq('id', id);
 
     if (error) {
-      return { error: error.message };
+      return { error: 'Failed to approve stock adjustment' };
     }
 
     revalidatePath('/admin/batches');
@@ -106,14 +127,14 @@ export async function approveAdjustment(id: string) {
     revalidatePath('/employee/dashboard');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message || 'An unexpected error occurred' };
+    return { error: 'An unexpected error occurred' };
   }
 }
 
 export async function rejectAdjustment(id: string) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || !hasAdminRole(currentUser)) {
       return { error: 'Unauthorized: Admin privileges required' };
     }
 
@@ -124,7 +145,7 @@ export async function rejectAdjustment(id: string) {
       .eq('id', id);
 
     if (error) {
-      return { error: error.message };
+      return { error: 'Failed to reject stock adjustment' };
     }
 
     revalidatePath('/admin/batches');
@@ -132,7 +153,7 @@ export async function rejectAdjustment(id: string) {
     revalidatePath('/employee/dashboard');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message || 'An unexpected error occurred' };
+    return { error: 'An unexpected error occurred' };
   }
 }
 
@@ -145,10 +166,10 @@ export async function returnBatchToSupplier(batchId: string, reason: string) {
 
     const supabase = await createClient();
     
-    // Fetch batch available quantity first
+    // Fetch batch available quantity, supplier_id, and branch_id first
     const { data: batch, error: batchError } = await supabase
       .from('batches')
-      .select('quantity_available, supplier_id')
+      .select('quantity_available, supplier_id, branch_id')
       .eq('id', batchId)
       .single();
 
@@ -156,12 +177,18 @@ export async function returnBatchToSupplier(batchId: string, reason: string) {
       return { error: 'Batch not found' };
     }
 
+    // Branch ownership check for branch staff / managers
+    if (currentUser.role !== 'super_admin' && currentUser.role !== 'admin') {
+      if (batch.branch_id !== currentUser.branch_id) {
+        return { error: 'Unauthorized: You can only return batches belonging to your assigned branch.' };
+      }
+    }
+
     if (batch.quantity_available <= 0) {
       return { error: 'No stock available to return in this batch' };
     }
 
-    // Insert stock movement of type 'return' with negative quantity
-    // In our system, return movements log the stock exit.
+    // Insert stock movement of type 'return' with negative quantity and scoped branch_id
     const { error: movementError } = await supabase.from('stock_movements').insert([
       {
         batch_id: batchId,
@@ -170,11 +197,12 @@ export async function returnBatchToSupplier(batchId: string, reason: string) {
         status: 'approved',
         reason: reason,
         created_by: currentUser.id,
+        branch_id: batch.branch_id,
       },
     ]);
 
     if (movementError) {
-      return { error: movementError.message };
+      return { error: 'Failed to process supplier return' };
     }
 
     revalidatePath('/admin/batches');
@@ -183,6 +211,6 @@ export async function returnBatchToSupplier(batchId: string, reason: string) {
     revalidatePath('/employee/dashboard');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message || 'An unexpected error occurred' };
+    return { error: 'An unexpected error occurred' };
   }
 }

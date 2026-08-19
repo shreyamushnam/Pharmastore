@@ -13,8 +13,13 @@ export default async function EmployeeLayout({
     redirect('/login');
   }
 
-  // Both admins and employees can access employee routes
-  if (profile.role !== 'employee' && profile.role !== 'admin') {
+  // Both admins, super_admins, managers, and employees can access employee routes
+  if (
+    profile.role !== 'employee' &&
+    profile.role !== 'manager' &&
+    profile.role !== 'admin' &&
+    profile.role !== 'super_admin'
+  ) {
     redirect('/login');
   }
 

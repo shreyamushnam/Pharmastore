@@ -1,6 +1,7 @@
 import { getCurrentUser } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
 import Header from '@/components/dashboard/Header';
+import { hasAdminRole } from '@/lib/roles';
 
 export default async function AdminLayout({
   children,
@@ -13,7 +14,7 @@ export default async function AdminLayout({
     redirect('/login');
   }
 
-  if (profile.role !== 'admin') {
+  if (!hasAdminRole(profile)) {
     redirect('/employee/dashboard');
   }
 

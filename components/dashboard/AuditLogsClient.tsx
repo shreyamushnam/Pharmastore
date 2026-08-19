@@ -100,10 +100,10 @@ export default function AuditLogsClient({ initialLogs }: AuditLogsClientProps) {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-          <FileText className="h-6 w-6 text-teal-650" />
+          <FileText className="h-6 w-6 text-teal-600" />
           System Audit Trail
         </h1>
-        <p className="text-sm text-slate-550">
+        <p className="text-sm text-slate-500">
           Permanent history of database changes, row level additions, deletions, and operator details
         </p>
       </div>
@@ -111,7 +111,7 @@ export default function AuditLogsClient({ initialLogs }: AuditLogsClientProps) {
       {/* Filter and Search Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-550">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
             <Search className="h-4 w-4" />
           </div>
           <input
@@ -119,14 +119,14 @@ export default function AuditLogsClient({ initialLogs }: AuditLogsClientProps) {
             placeholder="Search by table name, operator, or row UUID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-855 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+            className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
           />
         </div>
 
         <select
           value={filterAction}
           onChange={(e) => setFilterAction(e.target.value)}
-          className="rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-855 outline-none focus:border-teal-500 transition"
+          className="rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-800 outline-none focus:border-teal-500 transition"
         >
           <option value="all">All Actions</option>
           <option value="INSERT">INSERT Only</option>

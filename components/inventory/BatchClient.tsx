@@ -342,7 +342,7 @@ export default function BatchClient({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Batch Master</h1>
-          <p className="text-sm text-slate-550">Manage medicine batches, pricing, and expiry dates</p>
+          <p className="text-sm text-slate-500">Manage medicine batches, pricing, and expiry dates</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Hidden Import file input */}
@@ -387,7 +387,7 @@ export default function BatchClient({
           placeholder="Search by product name, batch no..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="block w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-4 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+          className="block w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
         />
       </div>
 
@@ -440,7 +440,7 @@ export default function BatchClient({
                         >
                           {expiryInfo.label}
                         </span>
-                        <div className="mt-1 text-[10px] text-slate-550">
+                        <div className="mt-1 text-[10px] text-slate-500">
                           Exp: {new Date(batch.expiry_date).toLocaleDateString()}
                         </div>
                       </td>
@@ -449,7 +449,7 @@ export default function BatchClient({
                           {batch.quantity_available}
                         </span>
                         <span className="text-xs text-slate-500"> / {batch.quantity_received}</span>
-                        <div className="text-[10px] text-slate-550 uppercase mt-0.5">{batch.products?.unit || 'units'}</div>
+                        <div className="text-[10px] text-slate-500 uppercase mt-0.5">{batch.products?.unit || 'units'}</div>
                       </td>
                       <td className="p-4 text-center text-slate-700 font-mono text-xs">
                         ₹{Number(batch.purchase_price).toFixed(2)} / ₹{Number(batch.mrp).toFixed(2)} / ₹
@@ -497,17 +497,17 @@ export default function BatchClient({
                 <select
                   required
                   {...register('product_id')}
-                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
                 >
                   <option value="" disabled>Select a product...</option>
                   {products.map((p) => (
-                    <option key={p.id} value={p.id} className="text-slate-850">
+                    <option key={p.id} value={p.id} className="text-slate-800">
                       {p.name} {p.generic_name && `(${p.generic_name})`}
                     </option>
                   ))}
                 </select>
                 {errors.product_id && (
-                  <p className="mt-1 text-xs text-rose-655">{errors.product_id.message}</p>
+                  <p className="mt-1 text-xs text-rose-600">{errors.product_id.message}</p>
                 )}
               </div>
             ) : (
@@ -530,10 +530,10 @@ export default function BatchClient({
                 required
                 {...register('batch_number')}
                 placeholder="e.g. B-PRC103"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500"
               />
               {errors.batch_number && (
-                <p className="mt-1 text-xs text-rose-655">{errors.batch_number.message}</p>
+                <p className="mt-1 text-xs text-rose-600">{errors.batch_number.message}</p>
               )}
             </div>
 
@@ -543,11 +543,11 @@ export default function BatchClient({
               </label>
               <select
                 {...register('supplier_id')}
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
               >
-                <option value="" className="text-slate-850">Direct purchase (No supplier)</option>
+                <option value="" className="text-slate-800">Direct purchase (No supplier)</option>
                 {suppliers.map((s) => (
-                  <option key={s.id} value={s.id} className="text-slate-850">
+                  <option key={s.id} value={s.id} className="text-slate-800">
                     {s.name}
                   </option>
                 ))}
@@ -561,7 +561,7 @@ export default function BatchClient({
               <input
                 type="date"
                 {...register('mfg_date')}
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
               />
             </div>
 
@@ -573,10 +573,10 @@ export default function BatchClient({
                 type="date"
                 required
                 {...register('expiry_date')}
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
               />
               {errors.expiry_date && (
-                <p className="mt-1 text-xs text-rose-655">{errors.expiry_date.message}</p>
+                <p className="mt-1 text-xs text-rose-600">{errors.expiry_date.message}</p>
               )}
             </div>
 
@@ -589,10 +589,10 @@ export default function BatchClient({
                   type="number"
                   required
                   {...register('quantity_received')}
-                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
                 />
                 {errors.quantity_received && (
-                  <p className="mt-1 text-xs text-rose-655">{errors.quantity_received.message}</p>
+                  <p className="mt-1 text-xs text-rose-600">{errors.quantity_received.message}</p>
                 )}
               </div>
             ) : (
@@ -616,10 +616,10 @@ export default function BatchClient({
                 required
                 {...register('purchase_price')}
                 placeholder="₹ 0.00"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
               />
               {errors.purchase_price && (
-                <p className="mt-1 text-xs text-rose-655">{errors.purchase_price.message}</p>
+                <p className="mt-1 text-xs text-rose-600">{errors.purchase_price.message}</p>
               )}
             </div>
 
@@ -633,9 +633,9 @@ export default function BatchClient({
                 required
                 {...register('mrp')}
                 placeholder="₹ 0.00"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
               />
-              {errors.mrp && <p className="mt-1 text-xs text-rose-655">{errors.mrp.message}</p>}
+              {errors.mrp && <p className="mt-1 text-xs text-rose-600">{errors.mrp.message}</p>}
             </div>
 
             <div>
@@ -648,10 +648,10 @@ export default function BatchClient({
                 required
                 {...register('selling_price')}
                 placeholder="₹ 0.00"
-                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
               />
               {errors.selling_price && (
-                <p className="mt-1 text-xs text-rose-655">{errors.selling_price.message}</p>
+                <p className="mt-1 text-xs text-rose-600">{errors.selling_price.message}</p>
               )}
             </div>
           </div>

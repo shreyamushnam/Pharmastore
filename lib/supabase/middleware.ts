@@ -27,6 +27,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  const isPlaceholder = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder-project') && process.env.NODE_ENV !== 'production';
+  if (isPlaceholder) {
+    return supabaseResponse;
+  }
+
   // Refresh the session token
   const {
     data: { user },
@@ -47,10 +52,57 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If user is authenticated and goes to login page, redirect to home/dashboard router
-  if (user && isAuthPage) {
-    url.pathname = '/';
-    return NextResponse.redirect(url);
+  // If user is authenticated, check their role and protect routes
+  if (user) {
+    // Role-based route gating (defense in depth)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, is_active')
+      .eq('id', user.id)
+      .single();
+
+    // Sign out and redirect ONLY if the profile genuinely does not exist or user is inactive.
+    // Do not perform sign-out on transient network/fetch errors.
+    const profileNotFound = profileError && profileError.code === 'PGRST116';
+    const isInactive = profile && !profile.is_active;
+
+    if (profileNotFound || isInactive) {
+      if (!isAuthPage) {
+        url.pathname = '/login';
+        const redirectResponse = NextResponse.redirect(url);
+        // Sign out to clear session locally
+        await supabase.auth.signOut({ scope: 'local' });
+        // Propagate cookies set by signOut
+        supabaseResponse.cookies.getAll().forEach((cookie) => {
+          redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+        });
+        return redirectResponse;
+      }
+      return supabaseResponse;
+    }
+
+    // If they go to login page, redirect to home
+    if (isAuthPage) {
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+
+    if (!profile) {
+      return supabaseResponse;
+    }
+
+    if (url.pathname.startsWith('/admin') && profile.role !== 'admin' && profile.role !== 'super_admin') {
+      url.pathname = '/employee/dashboard';
+      return NextResponse.redirect(url);
+    }
+    if (url.pathname.startsWith('/employee') &&
+        profile.role !== 'employee' &&
+        profile.role !== 'manager' &&
+        profile.role !== 'admin' &&
+        profile.role !== 'super_admin') {
+      url.pathname = '/admin/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

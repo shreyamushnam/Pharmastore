@@ -6,6 +6,15 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     // We use the Admin Client to bypass RLS for system cron updates
     const supabase = await createAdminClient();
 

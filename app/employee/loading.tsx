@@ -4,7 +4,7 @@ export default function Loading() {
       {/* Header Skeleton */}
       <div className="space-y-2">
         <div className="h-7 w-48 rounded bg-slate-800" />
-        <div className="h-4 w-96 rounded bg-slate-850" />
+        <div className="h-4 w-96 rounded bg-slate-800" />
       </div>
 
       {/* Cards Grid */}
@@ -16,7 +16,7 @@ export default function Loading() {
               <div className="h-4 w-4 rounded-full bg-slate-800" />
             </div>
             <div className="h-7 w-32 rounded bg-slate-800" />
-            <div className="h-3 w-40 rounded bg-slate-850" />
+            <div className="h-3 w-40 rounded bg-slate-800" />
           </div>
         ))}
       </div>
@@ -26,10 +26,10 @@ export default function Loading() {
         <div className="h-4 w-32 rounded bg-slate-800" />
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between py-3 border-b border-slate-850">
+            <div key={i} className="flex items-center justify-between py-3 border-b border-slate-800">
               <div className="space-y-2">
                 <div className="h-3.5 w-48 rounded bg-slate-800" />
-                <div className="h-2.5 w-32 rounded bg-slate-850" />
+                <div className="h-2.5 w-32 rounded bg-slate-800" />
               </div>
               <div className="h-7 w-20 rounded bg-slate-800" />
             </div>

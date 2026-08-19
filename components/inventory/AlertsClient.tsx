@@ -148,7 +148,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
       {/* Header Panel */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Ops & Inventory Alerts</h1>
-        <p className="text-sm text-slate-550">
+        <p className="text-sm text-slate-500">
           Track low-stock medicines, inspect expired/critical items, and prepare supplier returns
         </p>
       </div>
@@ -160,7 +160,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeTab === 'low-stock'
               ? 'bg-white text-teal-700 shadow-sm'
-              : 'text-slate-550 hover:text-slate-800'
+              : 'text-slate-500 hover:text-slate-800'
           }`}
         >
           <AlertTriangle className="h-4 w-4" />
@@ -172,7 +172,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeTab === 'expiry'
               ? 'bg-white text-teal-700 shadow-sm'
-              : 'text-slate-550 hover:text-slate-800'
+              : 'text-slate-500 hover:text-slate-800'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -184,7 +184,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold transition ${
             activeTab === 'returns'
               ? 'bg-white text-teal-700 shadow-sm'
-              : 'text-slate-550 hover:text-slate-800'
+              : 'text-slate-500 hover:text-slate-800'
           }`}
         >
           <Truck className="h-4 w-4" />
@@ -194,7 +194,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
 
       {/* Success/Error displays */}
       {successMsg && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-250 bg-emerald-50 p-3 text-sm text-emerald-700">
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
           <CheckCircle className="h-5 w-5 shrink-0" />
           <span>{successMsg}</span>
         </div>
@@ -232,9 +232,9 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
                   lowStockItems.map((item) => (
                     <tr key={item.product_id} className="rx-table-row">
                       <td className="p-4 font-bold text-slate-900">{item.name}</td>
-                      <td className="p-4 text-slate-550">{item.generic_name || 'N/A'}</td>
+                      <td className="p-4 text-slate-500">{item.generic_name || 'N/A'}</td>
                       <td className="p-4 text-center font-semibold text-rose-600">
-                        {item.total_stock} <span className="text-[10px] text-slate-550 uppercase">{item.unit || 'units'}</span>
+                        {item.total_stock} <span className="text-[10px] text-slate-500 uppercase">{item.unit || 'units'}</span>
                       </td>
                       <td className="p-4 text-center text-slate-700 font-mono">{item.reorder_level}</td>
                       <td className="p-4 text-right">
@@ -329,7 +329,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4">
                     <div>
                       <h3 className="text-base font-bold text-slate-900 flex items-center gap-1.5">
-                        <Truck className="h-5 w-5 text-teal-650" />
+                        <Truck className="h-5 w-5 text-teal-600" />
                         {data.supplierName}
                       </h3>
                       {data.phone || data.email ? (
@@ -352,7 +352,7 @@ export default function AlertsClient({ lowStockItems, batchAlerts }: AlertsClien
                   <div className="overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/50">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-100/80 text-[10px] font-bold uppercase tracking-wider text-slate-550">
+                        <tr className="border-b border-slate-200 bg-slate-100/80 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                           <th className="p-3">Medicine</th>
                           <th className="p-3">Batch Number</th>
                           <th className="p-3">Expiry Date</th>

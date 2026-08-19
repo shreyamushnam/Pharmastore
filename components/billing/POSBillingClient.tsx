@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef, useTransition } from 'react';
+import { useState, useEffect, useRef, useTransition, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { createSale } from '@/lib/actions/sales';
+import { createSale, getSaleDetails } from '@/lib/actions/sales';
 import { getExpiryStatus } from '@/lib/utils/expiry';
+import { getCurrentUser } from '@/lib/actions/auth';
+import { getBranches } from '@/lib/actions/branches';
 import {
   Search,
   ShoppingCart,
@@ -23,6 +25,24 @@ import {
 } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
+import dynamic from 'next/dynamic';
+import { allocateBatchesFEFO } from '@/lib/utils/fefo';
+
+const InvoicePDFButton = dynamic(
+  () => import('./InvoicePDFButton'),
+  { ssr: false }
+);
+
+interface Batch {
+  id: string;
+  batch_number: string;
+  quantity_available: number;
+  purchase_price: number;
+  mrp: number;
+  selling_price: number;
+  expiry_date: string;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -31,11 +51,15 @@ interface Product {
   tax_rate: number;
   barcode: string | null;
   unit: string | null;
+  pack_size: string | null;
+  hsn_code: string | null;
+  batches?: Batch[];
 }
 
 interface CartItem {
   product: Product;
-  quantity: number;
+  quantity: number; // in saleUnit
+  saleUnit: 'strip' | 'unit';
   taxRate: number;
 }
 
@@ -61,6 +85,33 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [createdInvoiceNum, setCreatedInvoiceNum] = useState<string | null>(null);
+  const [lastCreatedSale, setLastCreatedSale] = useState<any | null>(null);
+  const [currentBranch, setCurrentBranch] = useState<any | null>(null);
+  const [pharmacistName, setPharmacistName] = useState('Active Staff');
+
+  useEffect(() => {
+    async function loadUserBranch() {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setPharmacistName(user.full_name || 'Active Staff');
+          const branchesList = await getBranches();
+          const userBranch = branchesList.find((b: any) => b.id === user.branch_id);
+          if (userBranch) {
+            setCurrentBranch(userBranch);
+          } else {
+            const activeBranch = branchesList.find((b: any) => b.is_active);
+            if (activeBranch) {
+              setCurrentBranch(activeBranch);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error loading user branch:', err);
+      }
+    }
+    loadUserBranch();
+  }, []);
   const [isPending, startTransition] = useTransition();
 
   // Camera Barcode Scanner State
@@ -86,15 +137,57 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
     }
   }, [error]);
 
-  // Calculated totals
-  const subtotal = cart.reduce((sum, item) => {
-    return sum + item.quantity * 100;
-  }, 0);
+  // Calculated totals using FEFO and pack sizes
+  const cartWithAllocations = useMemo(() => {
+    return cart.map((item) => {
+      const packSize = parseInt(item.product.pack_size || '1') || 1;
+      const totalUnitsRequired = item.saleUnit === 'strip' ? item.quantity * packSize : item.quantity;
+      const productBatches = item.product.batches || [];
+      
+      const { allocations, unallocatedQuantity } = allocateBatchesFEFO(
+        productBatches.map(b => ({
+          id: b.id,
+          batch_number: b.batch_number,
+          quantity_available: b.quantity_available,
+          selling_price: b.selling_price,
+          mrp: b.mrp,
+          expiry_date: b.expiry_date,
+          tax_rate: Number(item.product.tax_rate)
+        })),
+        totalUnitsRequired
+      );
 
-  const taxAmount = cart.reduce((sum, item) => {
-    const itemSubtotal = item.quantity * 100;
-    return sum + itemSubtotal * (item.taxRate / 100);
-  }, 0);
+      return {
+        ...item,
+        packSize,
+        totalUnitsRequired,
+        allocations,
+        unallocatedQuantity,
+      };
+    });
+  }, [cart]);
+
+  const subtotal = useMemo(() => {
+    return cartWithAllocations.reduce((sum, item) => {
+      const lineSubtotal = item.allocations.reduce((lineSum, alloc) => {
+        const lineTotal = (alloc.quantitySelected * alloc.sellingPrice) / item.packSize;
+        const lineBase = lineTotal / (1 + alloc.taxRate / 100);
+        return lineSum + lineBase;
+      }, 0);
+      return sum + lineSubtotal;
+    }, 0);
+  }, [cartWithAllocations]);
+
+  const taxAmount = useMemo(() => {
+    return cartWithAllocations.reduce((sum, item) => {
+      const lineTax = item.allocations.reduce((lineSum, alloc) => {
+        const lineTotal = (alloc.quantitySelected * alloc.sellingPrice) / item.packSize;
+        const lineBase = lineTotal / (1 + alloc.taxRate / 100);
+        return lineSum + (lineTotal - lineBase);
+      }, 0);
+      return sum + lineTax;
+    }, 0);
+  }, [cartWithAllocations]);
 
   const totalAmount = Math.max(0, subtotal + taxAmount - discount);
 
@@ -148,7 +241,15 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
           item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { product, quantity: 1, taxRate: Number(product.tax_rate) }];
+      return [
+        ...prev,
+        {
+          product,
+          quantity: 1,
+          saleUnit: (product.pack_size && parseInt(product.pack_size) > 1) ? 'strip' : 'unit',
+          taxRate: Number(product.tax_rate),
+        },
+      ];
     });
     setSearchQuery('');
     setShowProductList(false);
@@ -165,6 +266,14 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
           return item;
         })
         .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const updateUnitType = (productId: string, unit: 'strip' | 'unit') => {
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId ? { ...item, saleUnit: unit } : item
+      )
     );
   };
 
@@ -215,14 +324,22 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
       return;
     }
 
+    // Check if any item has shortage (unallocated quantity)
+    const hasShortage = cartWithAllocations.some((item) => item.unallocatedQuantity > 0);
+    if (hasShortage) {
+      const shortageItem = cartWithAllocations.find((item) => item.unallocatedQuantity > 0);
+      setError(`Insufficient unexpired stock for: ${shortageItem?.product.name}. Short by ${shortageItem?.unallocatedQuantity} unit(s).`);
+      return;
+    }
+
     startTransition(async () => {
       const res = await createSale({
         customerName,
         customerPhone,
         customerAddress,
-        items: cart.map((item) => ({
+        items: cartWithAllocations.map((item) => ({
           productId: item.product.id,
-          quantity: item.quantity,
+          quantity: item.totalUnitsRequired,
         })),
         paymentMode,
         discount,
@@ -235,6 +352,31 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
       } else {
         setSuccessMsg(`Checkout completed successfully!`);
         setCreatedInvoiceNum(res.invoiceNumber || 'INV-TEMP');
+        
+        // Fetch the database-authoritative sale details (resolves P4-M1)
+        if (res.saleId) {
+          const dbSale = await getSaleDetails(res.saleId);
+          if (dbSale) {
+            setLastCreatedSale(dbSale);
+          } else {
+            // Fallback to client state in case DB details fetch fails (e.g. offline placeholder mode)
+            setLastCreatedSale({
+              invoice_number: res.invoiceNumber || 'INV-TEMP',
+              customer_name: customerName,
+              customer_phone: customerPhone,
+              customer_address: customerAddress,
+              created_at: new Date().toISOString(),
+              subtotal,
+              tax_amount: taxAmount,
+              discount,
+              total: totalAmount,
+              payment_mode: paymentMode,
+              pharmacist_name: pharmacistName,
+              items: [...cartWithAllocations],
+            });
+          }
+        }
+        
         setCart([]);
         setCustomerName('');
         setCustomerPhone('');
@@ -264,37 +406,64 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
   return (
     <div className="space-y-6">
       {/* Printable Receipt Block for Browser Print Stylesheet */}
-      {createdInvoiceNum && (
+      {createdInvoiceNum && lastCreatedSale && currentBranch && (
         <div className="hidden print:block print:bg-white print:text-black p-4 w-[80mm] mx-auto text-xs font-mono">
-          <div className="text-center font-bold text-base">PHARMASTORE</div>
-          <div className="text-center">Drug License No: DL-12345/ABC</div>
-          <div className="text-center">Pharmacist: Rajan Verma</div>
+          <div className="text-center font-bold text-base">{currentBranch.name}</div>
+          <div className="text-center">DL No: {currentBranch.drug_licence_no || 'N/A'}</div>
+          <div className="text-center">GSTIN: {currentBranch.gstin || 'N/A'}</div>
+          <div className="text-center">Phone: {currentBranch.phone || 'N/A'}</div>
           <div className="border-t border-dashed my-2" />
           <div>Invoice: {createdInvoiceNum}</div>
-          <div>Date: {new Date().toLocaleString()}</div>
+          <div>Date: {new Date(lastCreatedSale.created_at).toLocaleString()}</div>
+          <div>Customer: {lastCreatedSale.customer_name || 'Walk-in'}</div>
           <div className="border-t border-dashed my-2" />
-          <table className="w-full text-left">
+          <table className="w-full text-left text-[10px]">
             <thead>
               <tr className="border-b">
-                <th>Item</th>
+                <th>Item/Batch</th>
                 <th className="text-center">Qty</th>
                 <th className="text-right">Price</th>
               </tr>
             </thead>
             <tbody>
-              {cart.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.product.name}</td>
-                  <td className="text-center">{item.quantity}</td>
-                  <td className="text-right">₹{(item.quantity * 100).toFixed(2)}</td>
-                </tr>
-              ))}
+              {lastCreatedSale.items.map((item: any, idx: number) => 
+                item.allocations.map((alloc: any, aIdx: number) => {
+                  const isLoose = item.saleUnit === 'unit';
+                  const itemQty = isLoose ? alloc.quantitySelected : (alloc.quantitySelected / item.packSize);
+                  return (
+                    <tr key={`${idx}-${aIdx}`} className="align-top">
+                      <td>
+                        <div>{item.product.name}</div>
+                        <div className="text-[8px] text-slate-500">
+                          B: {alloc.batchNumber} | HSN: {item.product.hsn_code || 'N/A'}
+                        </div>
+                      </td>
+                      <td className="text-center">{itemQty}</td>
+                      <td className="text-right">₹{(itemQty * (alloc.sellingPrice / (isLoose ? item.packSize : 1))).toFixed(2)}</td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
           <div className="border-t border-dashed my-2" />
-          <div className="flex justify-between font-bold">
+          <div className="flex justify-between">
+            <span>Subtotal:</span>
+            <span>₹{lastCreatedSale.subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>CGST + SGST tax:</span>
+            <span>₹{lastCreatedSale.tax_amount.toFixed(2)}</span>
+          </div>
+          {lastCreatedSale.discount > 0 && (
+            <div className="flex justify-between text-red-600">
+              <span>Discount:</span>
+              <span>-₹{lastCreatedSale.discount.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between font-bold border-t border-dashed pt-1">
             <span>Net Paid Amount:</span>
-            <span>₹{totalAmount.toFixed(2)}</span>
+            <span>₹{lastCreatedSale.total.toFixed(2)}</span>
           </div>
           <div className="text-center mt-4">Thank you! Get well soon.</div>
         </div>
@@ -306,7 +475,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
         <div className="lg:col-span-2 space-y-6">
           <div className="rx-card p-6">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
-              <ShoppingCart className="h-5 w-5 text-teal-650" />
+              <ShoppingCart className="h-5 w-5 text-teal-600" />
               Counter Billing Terminal
             </h2>
 
@@ -360,7 +529,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
                       setShowProductList(false);
                     }
                   }}
-                  className="block w-full rounded-xl border border-slate-350 bg-white py-3 pl-10 pr-4 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="block w-full rounded-xl border border-slate-350 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
 
@@ -370,7 +539,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
                 className="flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 px-4 border border-slate-300 text-slate-700 gap-1.5 transition cursor-pointer"
                 title="Scan Barcode using Device Camera"
               >
-                <Camera className="h-5 w-5 text-teal-650" />
+                <Camera className="h-5 w-5 text-teal-600" />
                 <span className="hidden sm:inline text-xs font-semibold">Camera Scan</span>
               </button>
             </div>
@@ -385,7 +554,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
                     className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors ${
                       idx === activeSuggestionIdx 
                         ? 'bg-teal-50 text-teal-900' 
-                        : 'hover:bg-slate-50 text-slate-750'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     <div>
@@ -411,70 +580,132 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
                   <thead>
                     <tr className="rx-table-header border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       <th className="p-3">Medicine Description</th>
-                      <th className="p-3 text-center">Tax Split</th>
+                      <th className="p-3 text-center">Unit Type</th>
+                      <th className="p-3">Allocated Batch</th>
                       <th className="p-3 text-center">Quantity</th>
                       <th className="p-3 text-right">Price</th>
+                      <th className="p-3 text-right">Total (GST)</th>
                       <th className="p-3 text-right">Remove</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs text-slate-650">
-                    {cart.length === 0 ? (
+                    {cartWithAllocations.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="p-8 text-center text-slate-400">
+                        <td colSpan={7} className="p-8 text-center text-slate-400">
                           Your billing cart is empty. Scan or search items above to begin.
                         </td>
                       </tr>
                     ) : (
-                      cart.map((item) => (
-                        <tr key={item.product.id} className="rx-table-row">
-                          <td className="p-3">
-                            <div className="font-semibold text-slate-900">{item.product.name}</div>
-                            <div className="text-[10px] text-slate-500">
-                              {item.product.generic_name || 'Generic'} {item.product.requires_prescription && (
-                                <span className="ml-1 text-rose-600 font-semibold">[Prescription Req.]</span>
+                      cartWithAllocations.map((item) => {
+                        const hasPackSize = item.packSize > 1;
+                        // Calculate total line amount
+                        const lineTotal = item.allocations.reduce((sum, alloc) => sum + (alloc.quantitySelected * alloc.sellingPrice) / item.packSize, 0);
+                        
+                        return (
+                          <tr key={item.product.id} className="rx-table-row">
+                            <td className="p-3">
+                              <div className="font-semibold text-slate-900">{item.product.name}</div>
+                              <div className="text-[10px] text-slate-500">
+                                {item.product.generic_name || 'Generic'} {item.product.hsn_code && `| HSN: ${item.product.hsn_code}`} {item.product.requires_prescription && (
+                                  <span className="ml-1 text-rose-600 font-semibold">[Prescription Req.]</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 text-center">
+                              {hasPackSize ? (
+                                <select
+                                  value={item.saleUnit}
+                                  onChange={(e) => updateUnitType(item.product.id, e.target.value as 'strip' | 'unit')}
+                                  className="rounded-lg border border-slate-350 bg-white py-1 px-2 text-[10px] text-slate-805 outline-none focus:border-teal-500"
+                                >
+                                  <option value="strip">Strips (x{item.packSize})</option>
+                                  <option value="unit">Tablets (Loose)</option>
+                                </select>
+                              ) : (
+                                <span className="text-[10px] text-slate-550 font-semibold uppercase">
+                                  Units ({item.product.unit || 'pcs'})
+                                </span>
                               )}
-                            </div>
-                          </td>
-                          <td className="p-3 text-center">
-                            <span className="text-[10px] text-slate-500">
-                              CGST: {item.taxRate / 2}% / SGST: {item.taxRate / 2}%
-                            </span>
-                          </td>
-                          <td className="p-3 text-center">
-                            <div className="inline-flex items-center rounded-lg bg-slate-55 p-0.5 border border-slate-200">
-                              <button
-                                type="button"
-                                onClick={() => updateQuantity(item.product.id, -1)}
-                                className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </button>
-                              <span className="w-8 font-bold text-slate-800 text-center text-xs">
-                                {item.quantity}
+                            </td>
+                            <td className="p-3">
+                              <div className="space-y-1">
+                                {item.allocations.length === 0 ? (
+                                  <span className="text-rose-600 font-semibold text-[10px] flex items-center gap-1">
+                                    <AlertCircle className="h-3.5 w-3.5" /> No active stock
+                                  </span>
+                                ) : (
+                                  item.allocations.map((alloc, aIdx) => {
+                                    const isNearExpiry = getExpiryStatus(alloc.expiryDate).status !== 'ok';
+                                    return (
+                                      <div key={aIdx} className="font-mono text-[9px] text-slate-700 flex flex-col border-l border-slate-200 pl-1.5">
+                                        <span className="font-semibold">
+                                          {alloc.batchNumber} ({item.saleUnit === 'unit' ? alloc.quantitySelected : (alloc.quantitySelected / item.packSize)} {item.saleUnit === 'unit' ? 'tab' : 'str'})
+                                        </span>
+                                        <span className={isNearExpiry ? 'text-amber-600 font-bold' : 'text-slate-500'}>
+                                          Exp: {alloc.expiryDate}
+                                        </span>
+                                      </div>
+                                    );
+                                  })
+                                )}
+                                {item.unallocatedQuantity > 0 && item.allocations.length > 0 && (
+                                  <span className="text-rose-600 font-semibold text-[9px] block">
+                                    Shortage: {item.saleUnit === 'unit' ? item.unallocatedQuantity : (item.unallocatedQuantity / item.packSize)} {item.saleUnit === 'unit' ? 'tab' : 'str'}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 text-center">
+                              <div className="inline-flex items-center rounded-lg bg-slate-50 p-0.5 border border-slate-200">
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.product.id, -1)}
+                                  className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <span className="w-8 font-bold text-slate-800 text-center text-xs">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.product.id, 1)}
+                                  className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </td>
+                            <td className="p-3 text-right text-slate-700 font-mono font-semibold">
+                              {item.allocations.length > 0 ? (
+                                <>
+                                  ₹{((item.allocations[0].sellingPrice) / (item.saleUnit === 'unit' ? item.packSize : 1)).toFixed(2)}
+                                  <span className="text-[9px] text-slate-500 block">
+                                    {item.saleUnit === 'unit' ? '/tab' : '/str'}
+                                  </span>
+                                </>
+                              ) : (
+                                '₹0.00'
+                              )}
+                            </td>
+                            <td className="p-3 text-right text-slate-700 font-mono font-bold">
+                              ₹{lineTotal.toFixed(2)}
+                              <span className="text-[9px] text-slate-500 font-normal block">
+                                GST {item.taxRate}%
                               </span>
+                            </td>
+                            <td className="p-3 text-right">
                               <button
                                 type="button"
-                                onClick={() => updateQuantity(item.product.id, 1)}
-                                className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
+                                onClick={() => updateQuantity(item.product.id, -item.quantity)}
+                                className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                               >
-                                <Plus className="h-3 w-3" />
+                                <Trash2 className="h-4 w-4" />
                               </button>
-                            </div>
-                          </td>
-                          <td className="p-3 text-right text-slate-700 font-mono font-bold">
-                            ₹{(item.quantity * 100).toFixed(2)}
-                          </td>
-                          <td className="p-3 text-right">
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.product.id, -item.quantity)}
-                              className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -538,7 +769,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
                     placeholder="Doctor Reg / Slip Ref"
                     value={prescriptionRef}
                     onChange={(e) => setPrescriptionRef(e.target.value)}
-                    className="mt-1 block w-full rounded-xl border border-rose-250 bg-white py-2 px-3 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-rose-500"
+                    className="mt-1 block w-full rounded-xl border border-rose-200 bg-white py-2 px-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-rose-500"
                   />
                 </div>
                 <div>
@@ -592,7 +823,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
 
               <div className="flex justify-between text-sm font-bold text-slate-900 border-t border-slate-100 pt-3">
                 <span>Net Total:</span>
-                <span className="font-mono text-teal-650">₹{totalAmount.toFixed(2)}</span>
+                <span className="font-mono text-teal-600">₹{totalAmount.toFixed(2)}</span>
               </div>
             </div>
 
@@ -661,7 +892,7 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
               </div>
             )}
 
-            {/* Print & Action Buttons */}
+             {/* Print & Action Buttons */}
             <div className="space-y-2 border-t border-slate-200 pt-4">
               <button
                 type="button"
@@ -679,15 +910,18 @@ export default function POSBillingClient({ products }: POSBillingClientProps) {
                 )}
               </button>
 
-              {createdInvoiceNum && (
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="flex w-full items-center justify-center rounded-xl bg-slate-100 border border-slate-200 hover:bg-slate-200 py-2.5 text-xs font-semibold text-slate-700 gap-1.5 transition cursor-pointer"
-                >
-                  <Printer className="h-4 w-4 text-teal-650" />
-                  Print Thermal Invoice (Ctrl+P)
-                </button>
+              {createdInvoiceNum && lastCreatedSale && currentBranch && (
+                <div className="space-y-2 pt-2 border-t border-dashed border-slate-200">
+                  <InvoicePDFButton sale={lastCreatedSale} branch={currentBranch} />
+                  <button
+                    type="button"
+                    onClick={handlePrint}
+                    className="flex w-full items-center justify-center rounded-xl bg-slate-100 border border-slate-200 hover:bg-slate-200 py-2.5 text-xs font-semibold text-slate-700 gap-1.5 transition cursor-pointer"
+                  >
+                    <Printer className="h-4 w-4 text-teal-600" />
+                    Print Thermal Invoice (Ctrl+P)
+                  </button>
+                </div>
               )}
             </div>
           </div>

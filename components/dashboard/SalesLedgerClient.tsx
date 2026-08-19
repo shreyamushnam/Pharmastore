@@ -162,10 +162,10 @@ export default function SalesLedgerClient({ initialSales }: SalesLedgerClientPro
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-            <FileText className="h-6 w-6 text-teal-650" />
+            <FileText className="h-6 w-6 text-teal-600" />
             Sales Ledger (Invoices)
           </h1>
-          <p className="text-sm text-slate-550">View, sort, filter, and export pharmacy billing records</p>
+          <p className="text-sm text-slate-500">View, sort, filter, and export pharmacy billing records</p>
         </div>
         <button
           onClick={handleExportCSV}
@@ -188,7 +188,7 @@ export default function SalesLedgerClient({ initialSales }: SalesLedgerClientPro
             placeholder="Invoice / Customer / Phone / Cashier"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-4 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 transition"
+            className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 transition"
           />
         </div>
 
@@ -198,10 +198,10 @@ export default function SalesLedgerClient({ initialSales }: SalesLedgerClientPro
           onChange={(e) => setPaymentFilter(e.target.value)}
           className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-700 outline-none focus:border-teal-500 transition"
         >
-          <option value="all" className="text-slate-850">All Payment Channels</option>
-          <option value="cash" className="text-slate-850">Cash Only</option>
-          <option value="card" className="text-slate-850">Card Only</option>
-          <option value="upi" className="text-slate-850">UPI Only</option>
+          <option value="all" className="text-slate-800">All Payment Channels</option>
+          <option value="cash" className="text-slate-800">Cash Only</option>
+          <option value="card" className="text-slate-800">Card Only</option>
+          <option value="upi" className="text-slate-800">UPI Only</option>
         </select>
 
         {/* Date Filter */}
@@ -210,10 +210,10 @@ export default function SalesLedgerClient({ initialSales }: SalesLedgerClientPro
           onChange={(e) => setDateFilter(e.target.value)}
           className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-700 outline-none focus:border-teal-500 transition"
         >
-          <option value="all" className="text-slate-850">All Time History</option>
-          <option value="today" className="text-slate-850">Today Only</option>
-          <option value="week" className="text-slate-850">Last 7 Days</option>
-          <option value="month" className="text-slate-850">Last 30 Days</option>
+          <option value="all" className="text-slate-800">All Time History</option>
+          <option value="today" className="text-slate-800">Today Only</option>
+          <option value="week" className="text-slate-800">Last 7 Days</option>
+          <option value="month" className="text-slate-800">Last 30 Days</option>
         </select>
 
         {/* Sorting Dropdown */}
@@ -222,10 +222,10 @@ export default function SalesLedgerClient({ initialSales }: SalesLedgerClientPro
           onChange={(e) => setSortBy(e.target.value as any)}
           className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-xs text-slate-700 outline-none focus:border-teal-500 transition"
         >
-          <option value="date-desc" className="text-slate-850">Date: Newest First</option>
-          <option value="date-asc" className="text-slate-850">Date: Oldest First</option>
-          <option value="total-desc" className="text-slate-850">Invoice Value: High to Low</option>
-          <option value="total-asc" className="text-slate-850">Invoice Value: Low to High</option>
+          <option value="date-desc" className="text-slate-800">Date: Newest First</option>
+          <option value="date-asc" className="text-slate-800">Date: Oldest First</option>
+          <option value="total-desc" className="text-slate-800">Invoice Value: High to Low</option>
+          <option value="total-asc" className="text-slate-800">Invoice Value: Low to High</option>
         </select>
       </div>
 

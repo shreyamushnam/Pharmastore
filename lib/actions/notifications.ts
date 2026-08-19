@@ -44,13 +44,15 @@ export async function markNotificationAsRead(id: string) {
       .update({ is_read: true })
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      return { error: 'Failed to update notification' };
+    }
 
     revalidatePath('/admin/dashboard');
     revalidatePath('/employee/dashboard');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message || 'Failed to update notification' };
+    return { error: 'An unexpected error occurred' };
   }
 }
 
@@ -62,12 +64,14 @@ export async function markAllNotificationsAsRead() {
       .update({ is_read: true })
       .eq('is_read', false);
 
-    if (error) throw error;
+    if (error) {
+      return { error: 'Failed to update notifications' };
+    }
 
     revalidatePath('/admin/dashboard');
     revalidatePath('/employee/dashboard');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message || 'Failed to update notifications' };
+    return { error: 'An unexpected error occurred' };
   }
 }

@@ -74,7 +74,7 @@ export default function EmployeeDashboard({
           </div>
           <h3 className="mt-4 text-base font-bold text-slate-900">POS Billing Counter</h3>
           <p className="mt-1 text-xs text-slate-500">Scan items, verify prescriptions, and print GST invoice PDFs</p>
-          <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-750">
+          <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-700">
             Open Billing <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition duration-200" />
           </div>
         </Link>
@@ -84,7 +84,7 @@ export default function EmployeeDashboard({
           className="rx-card p-6 group block"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-xl rx-badge-info group-hover:scale-110 transition duration-200">
-            <Package className="h-6 w-6 text-sky-750" />
+            <Package className="h-6 w-6 text-sky-700" />
           </div>
           <h3 className="mt-4 text-base font-bold text-slate-900">Stock Master</h3>
           <p className="mt-1 text-xs text-slate-500">View batches, check stock levels, and report damage/write-offs</p>
@@ -138,7 +138,7 @@ export default function EmployeeDashboard({
             <p className="text-xs text-slate-500">Instantly look up availability and nearest expiry date for any item</p>
           </div>
           <div className="relative w-full max-w-xs">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-550">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
               <Search className="h-4 w-4" />
             </div>
             <input
@@ -146,7 +146,7 @@ export default function EmployeeDashboard({
               placeholder="Search medicine name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-4 text-xs text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500"
+              className="block w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500"
             />
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function EmployeeDashboard({
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{prod.name}</h4>
-                        <p className="text-[10px] text-slate-550 line-clamp-1">
+                        <p className="text-[10px] text-slate-500 line-clamp-1">
                           {prod.generic_name || 'No composition'}
                         </p>
                       </div>

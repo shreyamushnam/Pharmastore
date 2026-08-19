@@ -2,11 +2,12 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/actions/auth';
+import { hasAdminRole } from '@/lib/roles';
 
 export async function getAnalyticsSummary() {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!currentUser || !hasAdminRole(currentUser)) {
       throw new Error('Unauthorized: Admin access required');
     }
 

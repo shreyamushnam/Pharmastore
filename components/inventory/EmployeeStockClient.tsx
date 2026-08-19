@@ -137,7 +137,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Live Stock Register</h1>
-          <p className="text-sm text-slate-550">View available quantities, check expiry dates, and report damage or count corrections</p>
+          <p className="text-sm text-slate-500">View available quantities, check expiry dates, and report damage or count corrections</p>
         </div>
       </div>
 
@@ -151,7 +151,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
           placeholder="Scan barcode or search name/generic/batch..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+          className="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
           <Barcode className="h-5 w-5 text-slate-450" />
@@ -196,7 +196,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
                         <div className="font-semibold text-slate-900">
                           {batch.products?.name || 'Unknown Product'}
                         </div>
-                        <div className="text-xs text-slate-550">
+                        <div className="text-xs text-slate-500">
                           {batch.products?.generic_name || 'No generic'} {batch.products?.requires_prescription && (
                             <span className="ml-1.5 inline-flex rounded-md px-1.5 py-0.2 text-[9px] font-semibold rx-badge-danger">Rx</span>
                           )}
@@ -218,7 +218,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
                           {batch.quantity_available}
                         </span>
                         <span className="text-xs text-slate-500"> / {batch.quantity_received}</span>
-                        <div className="text-[10px] text-slate-550 uppercase mt-0.5">{batch.products?.unit || 'units'}</div>
+                        <div className="text-[10px] text-slate-500 uppercase mt-0.5">{batch.products?.unit || 'units'}</div>
                       </td>
                       <td className="p-4 text-center text-slate-700 font-mono text-xs">
                         ₹{Number(batch.mrp).toFixed(2)}
@@ -252,7 +252,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Selected Medicine</div>
             <div className="mt-1 font-bold text-slate-900">{selectedBatch.products?.name}</div>
             <div className="text-xs text-slate-500">Batch Code: <span className="font-mono text-slate-800">{selectedBatch.batch_number}</span></div>
-            <div className="mt-2 text-xs text-slate-550">Current Available Quantity: <span className="font-bold text-emerald-700">{selectedBatch.quantity_available} {selectedBatch.products?.unit || 'units'}</span></div>
+            <div className="mt-2 text-xs text-slate-500">Current Available Quantity: <span className="font-bold text-emerald-700">{selectedBatch.quantity_available} {selectedBatch.products?.unit || 'units'}</span></div>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -263,10 +263,10 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
                 </label>
                 <select
                   {...register('adjustment_direction')}
-                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
                 >
-                  <option value="decrease" className="text-slate-850">Deduct / Decrease (-)</option>
-                  <option value="increase" className="text-slate-850">Reconcile / Increase (+)</option>
+                  <option value="decrease" className="text-slate-800">Deduct / Decrease (-)</option>
+                  <option value="increase" className="text-slate-800">Reconcile / Increase (+)</option>
                 </select>
               </div>
 
@@ -276,10 +276,10 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
                 </label>
                 <select
                   {...register('movement_type')}
-                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
                 >
-                  <option value="writeoff" className="text-slate-850">Write-off / Breakage / Theft</option>
-                  <option value="adjustment" className="text-slate-850">Stock Count Adjustment</option>
+                  <option value="writeoff" className="text-slate-800">Write-off / Breakage / Theft</option>
+                  <option value="adjustment" className="text-slate-800">Stock Count Adjustment</option>
                 </select>
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
                   required
                   min={1}
                   {...register('quantity_input', { valueAsNumber: true })}
-                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 outline-none focus:border-teal-500"
+                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -307,7 +307,7 @@ export default function EmployeeStockClient({ batches }: EmployeeStockClientProp
                   rows={3}
                   {...register('reason')}
                   placeholder="e.g. Expired capsules found, bottle broken, recount during monthly check..."
-                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-850 placeholder-slate-400 outline-none focus:border-teal-500 resize-none"
+                  className="mt-1 block w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-teal-500 resize-none"
                 />
               </div>
             </div>

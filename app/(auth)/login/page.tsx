@@ -17,7 +17,7 @@ export default function LoginPage() {
         <div className="relative flex flex-col rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
           {/* Header */}
           <div className="mb-8 flex flex-col items-center text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-650 ring-1 ring-teal-500/20 shadow-sm">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-600 ring-1 ring-teal-500/20 shadow-sm">
               <Activity className="h-8 w-8 animate-pulse" />
             </div>
             <h1 className="mt-6 text-2xl font-bold tracking-tight text-slate-900">
@@ -47,7 +47,7 @@ export default function LoginPage() {
                   type="email"
                   required
                   placeholder="name@pharmastore.com"
-                  className="block w-full rounded-xl border border-slate-350 bg-white py-3 pl-10 pr-4 text-sm text-slate-850 placeholder-slate-400 outline-none ring-offset-white transition duration-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="block w-full rounded-xl border border-slate-350 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none ring-offset-white transition duration-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
@@ -69,7 +69,7 @@ export default function LoginPage() {
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="block w-full rounded-xl border border-slate-350 bg-white py-3 pl-10 pr-4 text-sm text-slate-850 placeholder-slate-400 outline-none ring-offset-white transition duration-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="block w-full rounded-xl border border-slate-350 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none ring-offset-white transition duration-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>

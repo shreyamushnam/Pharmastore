@@ -78,10 +78,10 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
       {/* Page Title */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-teal-650" />
+          <TrendingUp className="h-6 w-6 text-teal-600" />
           Financial Intelligence & Margins
         </h1>
-        <p className="text-sm text-slate-550">
+        <p className="text-sm text-slate-500">
           Executive analytics covering retail performance, catalog valuations, tax liabilities, and expiry leakage
         </p>
       </div>
@@ -104,7 +104,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
         <div className="rx-card p-5">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-semibold uppercase tracking-wider">Catalog Valuation (MRP)</span>
-            <DollarSign className="h-4 w-4 text-sky-655" />
+            <DollarSign className="h-4 w-4 text-sky-600" />
           </div>
           <div className="mt-2 text-2xl font-bold text-slate-900 font-mono">
             ₹{data.stockValuation.mrp.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -326,7 +326,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
               data.topSelling.map((prod, idx) => (
                 <div key={idx} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-100 text-[10px] font-bold text-slate-550">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-100 text-[10px] font-bold text-slate-500">
                       #{idx + 1}
                     </span>
                     <span className="font-bold text-slate-900">{prod.name}</span>

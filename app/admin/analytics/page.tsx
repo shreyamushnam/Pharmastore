@@ -2,12 +2,13 @@ import { getAnalyticsSummary } from '@/lib/actions/analytics';
 import AnalyticsClient from '@/components/dashboard/AnalyticsClient';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/actions/auth';
+import { hasAdminRole } from '@/lib/roles';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminAnalyticsPage() {
   const currentUser = await getCurrentUser();
-  if (!currentUser || currentUser.role !== 'admin') {
+  if (!currentUser || !hasAdminRole(currentUser)) {
     redirect('/login');
   }
 
